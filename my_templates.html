@@ -1,17 +1,11 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-body { font-family: Arial, sans-serif; line-height: 1.6; padding: 20px; max-width: 600px; margin: auto; }
-input, textarea, button { padding: 10px; margin-bottom: 10px; width: 100%; box-sizing: border-box; }
-button { background-color: #007bff; color: white; border: none; cursor: pointer; }
-button:hover { background-color: #0056b3; }
-.template-item { padding: 10px; border-bottom: 1px solid #ccc; display: flex; justify-content: space-between; align-items: center; }
-.template-content-snippet { flex-grow: 1; margin-right: 10px; }
-.template-actions button { width: auto; margin-left: 10px; }
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>主題與範本註冊器</title>
     <style>
+        /* CSS 樣式確保介面整潔 */
         body { font-family: Arial, sans-serif; line-height: 1.6; padding: 20px; max-width: 600px; margin: auto; }
         input, textarea, button { padding: 10px; margin-bottom: 10px; width: 100%; box-sizing: border-box; }
         button { background-color: #007bff; color: white; border: none; cursor: pointer; }
@@ -40,18 +34,19 @@ button:hover { background-color: #0056b3; }
     </div>
 
     <script>
-        // 用於 localStorage 的鍵名
+        // 用於 localStorage 的鍵名 (Key name for localStorage)
         const STORAGE_KEY = 'userChatTemplates_TopicAndContent_TC';
 
         // --- 與 localStorage 互動的函數 ---
 
         function getTemplates() {
-            // 儲存為一個陣列，每個元素是一個包含 id, topic 和 content 的物件
+            // Retrieve data from localStorage and parse it from string to JavaScript object/array
             const stored = localStorage.getItem(STORAGE_KEY);
             return stored ? JSON.parse(stored) : [];
         }
 
         function saveTemplates(templatesArray) {
+            // Convert JavaScript object/array to string and save it to localStorage
             localStorage.setItem(STORAGE_KEY, JSON.stringify(templatesArray));
         }
 
@@ -66,7 +61,7 @@ button:hover { background-color: #0056b3; }
 
             if (topic && content) {
                 let templates = getTemplates();
-                // 使用當前時間戳作為唯一的 ID
+                // Use a timestamp as a unique ID
                 const newTemplate = {
                     id: Date.now(),
                     topic: topic,
@@ -76,9 +71,9 @@ button:hover { background-color: #0056b3; }
                 saveTemplates(templates);
 
                 alert(`範本「${topic}」已成功儲存！`);
-                topicInput.value = ''; // 清空輸入欄位
+                topicInput.value = ''; // Clear input fields
                 contentInput.value = '';
-                displayTemplates(); // 重新整理列表
+                displayTemplates(); // Refresh the list display
             } else {
                 alert("請填寫主題和範本內容。");
             }
@@ -88,7 +83,7 @@ button:hover { background-color: #0056b3; }
 
         function displayTemplates() {
             const templateList = document.getElementById('template-list');
-            templateList.innerHTML = ''; // 清除現有列表
+            templateList.innerHTML = ''; // Clear existing list
 
             const templates = getTemplates();
 
@@ -97,12 +92,12 @@ button:hover { background-color: #0056b3; }
                 return;
             }
 
-            // 反轉陣列，讓最新的範本顯示在最上面
+            // Reverse the array to show the newest template first
             [...templates].reverse().forEach(template => {
                 const itemDiv = document.createElement('div');
                 itemDiv.classList.add('template-item');
                 
-                // 顯示內容的前 50 個字元作為摘要
+                // Show the first 50 characters of content as a snippet
                 const contentSnippet = template.content.substring(0, 50) + (template.content.length > 50 ? '...' : '');
 
                 itemDiv.innerHTML = `
@@ -123,107 +118,25 @@ button:hover { background-color: #0056b3; }
 
         function useTemplate(id) {
             const templates = getTemplates();
-            const template = templates.find(t => t.id == id); // 找到匹配的 ID
+            const template = templates.find(t => t.id == id); // Find the matching ID
             if (template) {
-                // 在實際應用中，您會將此「內容」插入到您的聊天輸入框中
+                // In a real application, you would insert this 'content' into your chat input field
                 alert(`使用主題「${template.topic}」的範本:\n\n${template.content}`); 
             }
         }
 
         function deleteTemplate(id) {
             if (confirm('確定要刪除此範本嗎？')) {
-                // 過濾掉要刪除的 ID，建立一個新陣列
+                // Filter out the ID to be deleted, creating a new array
                 let templates = getTemplates();
                 const updatedTemplates = templates.filter(template => template.id != id);
                 saveTemplates(updatedTemplates);
-                displayTemplates(); // 重新整理列表
+                displayTemplates(); // Refresh the list display
             }
         }
 
         // --- 頁面載入時初始化 ---
         window.onload = displayTemplates;
     </script>
-<script>
-    // Key name for localStorage
-    const STORAGE_KEY = 'userChatTemplates_TopicAndContent_TC';
-
-    function getTemplates() {
-        const stored = localStorage.getItem(STORAGE_KEY);
-        return stored ? JSON.parse(stored) : [];
-    }
-
-    function saveTemplates(templatesArray) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(templatesArray));
-    }
-
-    function saveTemplate() {
-        const topicInput = document.getElementById('template-topic');
-        const contentInput = document.getElementById('template-content');
-        const topic = topicInput.value.trim();
-        const content = contentInput.value.trim();
-
-        if (topic && content) {
-            let templates = getTemplates();
-            const newTemplate = { id: Date.now(), topic: topic, content: content };
-            templates.push(newTemplate);
-            saveTemplates(templates);
-            alert(`範本「${topic}」已成功儲存！`);
-            topicInput.value = '';
-            contentInput.value = '';
-            displayTemplates();
-        } else {
-            alert("請填寫主題和範本內容。");
-        }
-    }
-
-    function displayTemplates() {
-        const templateList = document.getElementById('template-list');
-        templateList.innerHTML = '';
-
-        const templates = getTemplates();
-        if (templates.length === 0) {
-            templateList.innerHTML = '<p>尚未儲存任何範本。</p>';
-            return;
-        }
-
-        [...templates].reverse().forEach(template => {
-            const itemDiv = document.createElement('div');
-            itemDiv.classList.add('template-item');
-            const contentSnippet = template.content.substring(0, 50) + (template.content.length > 50 ? '...' : '');
-
-            itemDiv.innerHTML = `
-                <div class="template-content-snippet">
-                    <strong>主題: ${template.topic}</strong>
-                    <p>${contentSnippet}</p>
-                </div>
-                <div class="template-actions">
-                    <button onclick="useTemplate('${template.id}')">使用</button>
-                    <button onclick="deleteTemplate('${template.id}')">刪除</button>
-                </div>
-            `;
-            templateList.appendChild(itemDiv);
-        });
-    }
-    
-    // Auxiliary functions for Use and Delete (needed for the buttons to work)
-    function useTemplate(id) {
-        const templates = getTemplates();
-        const template = templates.find(t => t.id == id);
-        if (template) { alert(`使用主題「${template.topic}」的範本:\n\n${template.content}`); }
-    }
-
-    function deleteTemplate(id) {
-        if (confirm('確定要刪除此範本嗎？')) {
-            let templates = getTemplates();
-            const updatedTemplates = templates.filter(template => template.id != id);
-            saveTemplates(updatedTemplates);
-            displayTemplates();
-        }
-    }
-
-    // Initialize when the page loads
-    window.onload = displayTemplates;
-</script>
-<!-- End of script block -->
 </body>
 </html>
